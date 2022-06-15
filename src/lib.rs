@@ -14,27 +14,23 @@ impl Cycle {
     loop {
       y *= self.g;
       y %= self.p;
-      if y <= self.n {
+      if y - 1 < self.n {
         return y - 1;
       }
     }
   }
 
   pub fn new(n: u64) -> Self {
-    if n == 0 {
-      panic!();
-    }
+    assert_ne!(n, 0, "Cycle size may not be 0");
 
     let mut p = n + 1;
 
-    while !(is_prime((p - 1) / 2) && is_prime(p)) {
+    while !(is_prime(p / 2) && is_prime(p)) {
       p += 1;
     }
 
-    for g in 2..p {
-      if mod_exp(g as u128, 2, p as u128) != 1
-        && mod_exp(g as u128, (p as u128 - 1) / 2, p as u128) != 1
-      {
+    for g in 1..p {
+      if mod_exp(g as u128, p as u128 / 2, p as u128) != 1 {
         return Self { n, p, g };
       }
     }
@@ -49,7 +45,7 @@ mod tests {
 
   #[test]
   fn small_cycles() {
-    for n in 1..1000 {
+    for n in 1..10000 {
       let cycle = Cycle::new(n);
 
       let mut i = 0;
