@@ -21,6 +21,10 @@ impl Cycle {
   }
 
   pub fn new(n: u64) -> Self {
+    if n == 0 {
+      panic!();
+    }
+
     let mut p = n + 1;
 
     while !(is_prime((p - 1) / 2) && is_prime(p)) {
@@ -35,37 +39,38 @@ impl Cycle {
       }
     }
 
-    panic!("Unable to find cycle!");
+    unreachable!()
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use {super::*, std::collections::HashSet};
+  use super::*;
 
   #[test]
   fn small_cycles() {
-    for i in 0..1000 {
-      let cycle = Cycle::new(i);
+    for n in 1..1000 {
+      let cycle = Cycle::new(n);
 
-      let mut seen = HashSet::new();
+      let mut i = 0;
+      let mut x = 0;
+      loop {
+        x = cycle.apply(x);
 
-      for n in 0..i {
-        let x = cycle.apply(n);
+        assert!(x < n);
 
-        if seen.contains(&x) {
-          panic!();
+        if x == 0 {
+          assert_eq!(i + 1, n);
+          break;
         }
 
-        seen.insert(x);
+        i += 1;
       }
-
-      assert_eq!(seen.len(), i as usize);
     }
   }
 
   #[test]
-  fn large_cycle() {
+  fn ord_cycle() {
     assert_eq!(
       Cycle::new(2099999997690000),
       Cycle {
